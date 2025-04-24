@@ -142,6 +142,8 @@ with st.sidebar:
     st.link_button("Youtube", "https://www.youtube.com/channel/UCkSw2eyetrr8TByFis0Uyug", use_container_width=True)
 
 st.title("Squad Report Based on Relative Performance")
+st.subheader("How much opponents lose their average performance against the selected squad?")
+st.write("Except from Standard Deviation, all metrics are shown in a lower-is-better mode")
 
 seasons = [f'{year}', f'{year-1}/{year}']
 countries = ['ENG', 'GER', 'ITA', 'BRA', 'ESP', 'FRA', 'BEL', 'SCO', 'TUR', 'NOR', 'SWE', 'POR', 'SUI', 'DEN', 'NED']
