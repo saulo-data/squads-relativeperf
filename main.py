@@ -147,8 +147,7 @@ st.write("Except from Standard Deviation, all metrics are shown in a lower-is-be
 
 seasons = [f'{year}', f'{year-1}/{year}']
 countries = ['ENG', 'GER', 'ITA', 'BRA', 'ESP', 'FRA', 'BEL', 'SCO', 'TUR', 'NOR', 'SWE', 'POR', 'SUI', 'DEN', 'NED']
-leagues = ['Bundesliga', 'LaLiga', 'Ligue 1', 'Premier League', 'Serie A', 'Premiership', 
-           'First Division A', 'Eliteserien', 'Allsvenskan', 'Liga Portugal', 'Super Lig', 'Super League', 'Superligaen', 'Eredivisie']
+leagues = ['Bundesliga', 'LaLiga', 'Ligue 1', 'Premier League', 'Serie A', 'Liga Portugal']
 
 squads = get_squads(seasons=seasons, leagues=leagues, countries=countries)
 
