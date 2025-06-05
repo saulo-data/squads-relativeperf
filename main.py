@@ -147,18 +147,18 @@ st.subheader("How much opponents lose their average performance against the sele
 st.write("Except from Standard Deviation, all metrics are shown in a lower-is-better mode")
 
 seasons = [f'{year}', f'{year-1}/{year}']
-countries = ['ENG', 'GER', 'ITA', 'BRA', 'ESP', 'FRA', 'POR']
-leagues = ['Bundesliga', 'LaLiga', 'Ligue 1', 'Premier League', 'Serie A', 'Liga Portugal']
+countries = ['BRA']
+leagues = ['Serie A']
 
 squads = get_squads(seasons=seasons, leagues=leagues, countries=countries)
 
 try:
     with st.form("league-season"):                 
             if 'league' not in st.session_state:
-                st.session_state['league'] = 'Premier League'
+                st.session_state['league'] = 'Serie A'
             
             if 'season' not in st.session_state:
-                st.session_state['season'] = '2024/2025'
+                st.session_state['season'] = '2025'
 
             if 'squad' not in st.session_state:
                 st.session_state['squad'] = squads[0]
