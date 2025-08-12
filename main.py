@@ -150,107 +150,107 @@ leagues = col.distinct('general.league')
 squads = get_squads(seasons=seasons, leagues=leagues, countries=countries)
 
 try:
-    with st.form("league-season"):
-            if 'country' not in st.session_state:
-                st.session_state['country'] = 'BRA'
+    # with st.form("league-season"):
+    #         if 'country' not in st.session_state:
+    #             st.session_state['country'] = 'BRA'
                 
-            if 'league' not in st.session_state:
-                st.session_state['league'] = 'Serie A'
+    #         if 'league' not in st.session_state:
+    #             st.session_state['league'] = 'Serie A'
             
-            if 'season' not in st.session_state:
-                st.session_state['season'] = '2025'
+    #         if 'season' not in st.session_state:
+    #             st.session_state['season'] = '2025'
 
-            if 'squad' not in st.session_state:
-                st.session_state['squad'] = 'Atletico MG'
+    #         if 'squad' not in st.session_state:
+    #             st.session_state['squad'] = 'Atletico MG'
 
-            country = st.selectbox(label='Select a Country', options=countries, index=3)
-            league = st.selectbox(label='Select a League', options=leagues, index=18)
+            country = st.selectbox(label='Select a Country', options=countries)
+            league = st.selectbox(label='Select a League', options=list(col.aggregate([{"$match": {"general.country": country}}}, {"$project": {"_id": 0, "general.league": 1}}]))
             season = st.selectbox(label='Select a Season',
-                                options=seasons, index=0)
-            squad = st.selectbox(label='Select a Squad', options=squads, index=24)
+                                options=list(col.aggregate([{"$match": {"general.country": country}}}, {"$project": {"_id": 0, "general.season": 1}}]))
+            squad = st.selectbox(label='Select a Squad', options=list(col.aggregate([{"$match": {"general.league": league}}}, {"$project": {"_id": 0, "teams.home.name": 1}}]))
             
-            submitted = st.form_submit_button("Submit")
+    #         submitted = st.form_submit_button("Submit")
 
             
             
-            if submitted:
-                st.session_state['country'] = country
-                st.session_state['league'] = league
-                st.session_state['season'] = season
-                st.session_state['squad'] = squad
+    #         if submitted:
+    #             st.session_state['country'] = country
+    #             st.session_state['league'] = league
+    #             st.session_state['season'] = season
+    #             st.session_state['squad'] = squad
 
 
-                stats = get_stats(country=st.session_state['country'], team=st.session_state['squad'], season=st.session_state['season'], league=st.session_state['league'])
-                df = get_dataframe(stats, team=st.session_state['squad'], season=st.session_state['season'], league=st.session_state['league'])
+            stats = get_stats(country=country, team=squad, season=season, league=league)
+            df = get_dataframe(stats, team=squad, season=season, league=league)
 
-                df_styled = df.style.background_gradient(cmap='RdBu_r', text_color_threshold=0.5, 
+            df_styled = df.style.background_gradient(cmap='RdBu_r', text_color_threshold=0.5, 
                                                         subset=df.columns[4:10], low=0.00).background_gradient(cmap='Blues_r', 
                                                                                                                 text_color_threshold=0.5, 
                                                                                                                 subset=df.columns[-1:], vmin=0).format(precision=2)
 
-                st.divider()
+            st.divider()
             
-                col1, col2, col3, col4, col5 = st.columns(5, vertical_alignment='center')
+            col1, col2, col3, col4, col5 = st.columns(5, vertical_alignment='center')
 
-                with col1:
-                    image_data = col.find_one({'teams.home.name': st.session_state['squad'], 'general.season': st.session_state['season'], 'general.league': st.session_state['league']})
-                    st.image(f"{image_data['teams']['home']['image']}")
+            with col1:
+                image_data = col.find_one({'teams.home.name': st.session_state['squad'], 'general.season': st.session_state['season'], 'general.league': st.session_state['league']})
+                st.image(f"{image_data['teams']['home']['image']}")
 
-                with col2:
-                    st.metric(label="Last 5 xG Open Play for 100 Passes Diff %", value=np.round(df.tail(5)['xG Open Play 100 Passes Diff %'].mean(), 2))
+            with col2:
+                st.metric(label="Last 5 xG Open Play for 100 Passes Diff %", value=np.round(df.tail(5)['xG Open Play 100 Passes Diff %'].mean(), 2))
 
-                with col3:
-                    st.metric(label="Last 5 Pass Opp Half Diff %", value=np.round(df.tail(5)['Pass Opp Half Diff %'].mean(), 2))
+            with col3:
+                st.metric(label="Last 5 Pass Opp Half Diff %", value=np.round(df.tail(5)['Pass Opp Half Diff %'].mean(), 2))
 
-                with col4:
-                    st.metric(label="Last 5 Weighted Avg Diff %", value=np.round(df.tail(5)['Weighted Avg Diff %'].mean(), 2))
+            with col4:
+                st.metric(label="Last 5 Weighted Avg Diff %", value=np.round(df.tail(5)['Weighted Avg Diff %'].mean(), 2))
 
-                with col5:
-                    st.metric(label="Last 5 Standard Deviation", value=np.round(df.tail(5)['Standard Dev'].mean(), 2))
+            with col5:
+                st.metric(label="Last 5 Standard Deviation", value=np.round(df.tail(5)['Standard Dev'].mean(), 2))
 
-                st.divider()
+            st.divider()
                 
 
                 
-                st.dataframe(df_styled, hide_index=True)
+            st.dataframe(df_styled, hide_index=True)
                 
-                st.divider()
+            st.divider()
 
-                st.subheader(f"{st.session_state['squad']} TreeMap")
-                st.write('Size of opponents squares are based on Standard Deviation')
+            st.subheader(f"{st.session_state['squad']} TreeMap")
+            st.write('Size of opponents squares are based on Standard Deviation')
 
-                fig_tree = px.treemap(data_frame=df, path=[px.Constant(st.session_state['league']), 'Result', 'Venue', 'Opponent'], values='Standard Dev', 
+            fig_tree = px.treemap(data_frame=df, path=[px.Constant(st.session_state['league']), 'Result', 'Venue', 'Opponent'], values='Standard Dev', 
                                       color='Weighted Avg Diff %', color_continuous_scale='RdBu_r')
-                fig_tree.update_traces(marker=dict(cornerradius=5))
-                fig_tree.update_layout(margin = dict(t=5, l=5, r=1, b=5))
-                st.plotly_chart(fig_tree, theme='streamlit')
+            fig_tree.update_traces(marker=dict(cornerradius=5))
+            fig_tree.update_layout(margin = dict(t=5, l=5, r=1, b=5))
+            st.plotly_chart(fig_tree, theme='streamlit')
 
-                st.divider()
+            st.divider()
 
-                col6, col7 = st.columns(2)
+            col6, col7 = st.columns(2)
 
                 #chart1
-                with col6:
-                    fig = px.box(data_frame=df, x='Venue', y='Weighted Avg Diff %', color='Venue',
-                                    color_discrete_sequence=['#073271', '#7e3707'], category_orders={'Venue': ['Home', 'Away']})
+            with col6:
+                fig = px.box(data_frame=df, x='Venue', y='Weighted Avg Diff %', color='Venue',
+                                color_discrete_sequence=['#073271', '#7e3707'], category_orders={'Venue': ['Home', 'Away']})
                     
-                    st.plotly_chart(fig, theme='streamlit')
+                st.plotly_chart(fig, theme='streamlit')
 
                 #chart2
-                with col7:
-                    fig2 = px.scatter(data_frame=df, x='Standard Dev', y='Weighted Avg Diff %', color='Matchweek', opacity=0.75, 
+            with col7:
+                fig2 = px.scatter(data_frame=df, x='Standard Dev', y='Weighted Avg Diff %', color='Matchweek', opacity=0.75, 
                                     color_continuous_scale='blues', hover_name='Opponent')
-                    fig2.update_traces(marker=dict(size=20,
+                fig2.update_traces(marker=dict(size=20,
                                     line=dict(width=2,
                                                 color='DarkSlateGrey')),
                         selector=dict(mode='markers'))
-                    fig2.add_vline(x=15)
-                    fig2.add_hline(y=0)
-                    fig2.update_yaxes(tick0=-100, dtick=30)
-                    fig2.update_xaxes(tick0=0, dtick=10)               
+                fig2.add_vline(x=15)
+                fig2.add_hline(y=0)
+                fig2.update_yaxes(tick0=-100, dtick=30)
+                fig2.update_xaxes(tick0=0, dtick=10)               
 
 
-                    st.plotly_chart(fig2, theme='streamlit')                
+                st.plotly_chart(fig2, theme='streamlit')                
 
 
 except Exception as e:
