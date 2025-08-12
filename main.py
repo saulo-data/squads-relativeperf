@@ -32,7 +32,7 @@ def get_perc(x: float, y: float) -> float:
     return perc
 
 #create dataframe from data obtained from mongodb
-def get_dataframe(squad_stats: list, team:str, season:str, league:str) -> pd.DataFrame:
+def get_dataframe(country: str, squad_stats: list, team:str, season:str, league:str) -> pd.DataFrame:
     matchweeks = []
     venues = []
     opps = []
@@ -80,7 +80,7 @@ def get_dataframe(squad_stats: list, team:str, season:str, league:str) -> pd.Dat
             xg_op_opp = []
             touch_opp_opp = []
 
-            opp_stats = get_stats(team=opp, season=season, league=league)
+            opp_stats = get_stats(country=country, team=opp, season=season, league=league)
             for stat_opp in opp_stats:                    
                 matchweek_opp = int(stat_opp['general']['round'][6:]) if len(stat_opp['general']['round']) > 6 else int(stat_opp['general']['round'])
                 if matchweek_opp < matchweek:
