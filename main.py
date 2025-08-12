@@ -166,7 +166,7 @@ try:
             if 'squad' not in st.session_state:
                 st.session_state['squad'] = squads[0]
 
-            country = st.selectbox(label='Select a Country', options=countries, index=8)
+            country = st.selectbox(label='Select a Country', options=countries, index=0)
             league = st.selectbox(label='Select a League', options=leagues, index=0)
             season = st.selectbox(label='Select a Season',
                                 options=seasons, index=1)
