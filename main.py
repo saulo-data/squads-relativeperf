@@ -12,9 +12,6 @@ client = MongoClient(st.secrets['url_con'])
 db = client.football_data
 col = db.fotmob_stats
 
-#year
-year = 2025
-
 #get data from mongodb database
 def get_stats(country: str, team: str, season: str, league: str) -> list:
     stats = col.aggregate([{"$match": {"general.country": country, "general.league": league, "general.season": season, "$or": [{"teams.home.name": team}, {"teams.away.name": team}]}}, 
@@ -146,7 +143,7 @@ st.title("Squad Report Based on Relative Performance")
 st.subheader("How much opponents lose their average performance against the selected squad?")
 st.write("Except from Standard Deviation, all metrics are shown in a lower-is-better mode")
 
-seasons = [f'{year}', f'{year}/{year+1}']
+seasons = col.distinct('general.season')
 countries = col.distinct('general.country')
 leagues = col.distinct('general.league')
 
