@@ -146,9 +146,9 @@ st.title("Squad Report Based on Relative Performance")
 st.subheader("How much opponents lose their average performance against the selected squad?")
 st.write("Except from Standard Deviation, all metrics are shown in a lower-is-better mode")
 
-seasons = [f'{year}']
-countries = ['BRA']
-leagues = ['Serie A']
+seasons = [f'{year}', f'{year}/{year+1}']
+countries = col.distinct('general.country')
+leagues = col.distinct('general.league')
 
 squads = get_squads(seasons=seasons, leagues=leagues, countries=countries)
 
