@@ -115,8 +115,8 @@ def get_dataframe(country: str, squad_stats: list, team:str, season:str, league:
 
 
 @st.cache_data(show_spinner=False)
-def get_squads(seasons: list, leagues: list, countries: list) -> list:
-    squads = list(col.find({'$and': [{'general.season': {'$in': seasons}, 'general.league': {'$in': leagues}, 'general.country': {"$in": countries}}]}).distinct('teams.home.name'))
+def get_squads(season: str, league: str, country: str) -> list:
+    squads = col.find({'general.season': season, 'general.league': league, 'general.country': country})
     
     return squads
 
@@ -147,41 +147,18 @@ seasons = col.distinct('general.season')
 countries = col.distinct('general.country')
 leagues = col.distinct('general.league')
 
-squads = get_squads(seasons=seasons, leagues=leagues, countries=countries)
+
 
 try:
-    # with st.form("league-season"):
-    #         if 'country' not in st.session_state:
-    #             st.session_state['country'] = 'BRA'
-                
-    #         if 'league' not in st.session_state:
-    #             st.session_state['league'] = 'Serie A'
-            
-    #         if 'season' not in st.session_state:
-    #             st.session_state['season'] = '2025'
-
-    #         if 'squad' not in st.session_state:
-    #             st.session_state['squad'] = 'Atletico MG'
-
             country = st.selectbox(label='Select a Country', options=countries)
             league = st.selectbox(label='Select a League', options=col.find({'general.country': country}).distinct('general.league'))
             season = st.selectbox(label='Select a Season',
                                 options=col.find({'general.league': league}).distinct('general.season'))
             squad = st.selectbox(label='Select a Squad', options=col.find({'general.league': league}).distinct('teams.home.name'))
-            
-    #         submitted = st.form_submit_button("Submit")
-
-            
-            
-    #         if submitted:
-    #             st.session_state['country'] = country
-    #             st.session_state['league'] = league
-    #             st.session_state['season'] = season
-    #             st.session_state['squad'] = squad
-
-
+            squads = get_squads(seasons=season, leagues=league, countries=country)
+   
             stats = get_stats(country=country, team=squad, season=season, league=league)
-            df = get_dataframe(stats, team=squad, season=season, league=league)
+            df = get_dataframe(stats, squad_stats=squads, season=season, league=league)
 
             df_styled = df.style.background_gradient(cmap='RdBu_r', text_color_threshold=0.5, 
                                                         subset=df.columns[4:10], low=0.00).background_gradient(cmap='Blues_r', 
