@@ -29,7 +29,7 @@ def get_perc(x: float, y: float) -> float:
     return perc
 
 #create dataframe from data obtained from mongodb
-def get_dataframe(country: str, squad_stats: list, team:str, season:str, league:str) -> pd.DataFrame:
+def get_dataframe(squad_stats: list, team:str, season:str, league:str) -> pd.DataFrame:
     matchweeks = []
     venues = []
     opps = []
@@ -155,10 +155,10 @@ try:
             season = st.selectbox(label='Select a Season',
                                 options=col.find({'general.league': league}).distinct('general.season'))
             squad = st.selectbox(label='Select a Squad', options=col.find({'general.league': league}).distinct('teams.home.name'))
-            squads = get_squads(seasons=season, leagues=league, countries=country)
+            #squads = get_squads(seasons=season, leagues=league, countries=country)
    
             stats = get_stats(country=country, team=squad, season=season, league=league)
-            df = get_dataframe(stats, squad_stats=squads, season=season, league=league)
+            df = get_dataframe(stats, season=season, league=league)
 
             df_styled = df.style.background_gradient(cmap='RdBu_r', text_color_threshold=0.5, 
                                                         subset=df.columns[4:10], low=0.00).background_gradient(cmap='Blues_r', 
