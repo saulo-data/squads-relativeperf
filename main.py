@@ -164,7 +164,7 @@ try:
     #             st.session_state['squad'] = 'Atletico MG'
 
             country = st.selectbox(label='Select a Country', options=countries)
-            league = st.selectbox(label='Select a League', options=list(col.aggregate([{"$match": {"general.country": country}}, {"$project": {"_id": 0, "general.league": 1}}])))
+            league = st.selectbox(label='Select a League', options=col.find({'general.country': country}).distinct('general.league'))
             season = st.selectbox(label='Select a Season',
                                 options=list(col.aggregate([{"$match": {"general.country": country}}, {"$project": {"_id": 0, "general.season": 1}}])))
             squad = st.selectbox(label='Select a Squad', options=list(col.aggregate([{"$match": {"general.league": league}}, {"$project": {"_id": 0, "teams.home.name": 1}}])))
