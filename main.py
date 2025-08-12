@@ -116,7 +116,7 @@ def get_dataframe(country: str, squad_stats: list, team:str, season:str, league:
 
 @st.cache_data(show_spinner=False)
 def get_squads(season: str, league: str, country: str) -> list:
-    squads = col.find({'general.season': season, 'general.league': league, 'general.country': country})
+    squads = col.aggregate([{"$match": {'general.season': season, 'general.league': league, 'general.country': country}}, {"$project": {"_id": 0, "general": 1, "teams": 1, "stats": 1, "result": 1}}])
     
     return squads
 
