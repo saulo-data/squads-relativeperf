@@ -14,8 +14,8 @@ col = db.fotmob_stats
 
 #get data from mongodb database
 def get_stats(country: str, team: str, season: str, league: str) -> list:
-    stats = col.aggregate([{"$match": {"general.country": country, "general.league": league, "general.season": season, "$or": [{"teams.home.name": team}, {"teams.away.name": team}]}}, 
-                       {"$project": {"_id": 0, "general.round": 1, "general.league": 1,"teams.home.name": 1, "teams.away.name": 1, "stats": 1, 'result': 1}}])
+    stats = list(col.aggregate([{"$match": {"general.country": country, "general.league": league, "general.season": season, "$or": [{"teams.home.name": team}, {"teams.away.name": team}]}}, 
+                       {"$project": {"_id": 0, "general.round": 1, "general.league": 1,"teams.home.name": 1, "teams.away.name": 1, "stats": 1, 'result': 1}}]))
 
     return stats
 
