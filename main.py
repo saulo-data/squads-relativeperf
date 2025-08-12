@@ -12,11 +12,14 @@ client = MongoClient(st.secrets['url_con'])
 db = client.football_data
 col = db.fotmob_stats
 
-#get data from mongodb database
-def get_stats(country: str, team: str, season: str, league: str) -> list:
-    stats = list(col.aggregate([{"$match": {"general.country": country, "general.league": league, "general.season": season, "$or": [{"teams.home.name": team}, {"teams.away.name": team}]}}, 
-                       {"$project": {"_id": 0, "general.round": 1, "general.league": 1,"teams.home.name": 1, "teams.away.name": 1, "stats": 1, 'result': 1}}]))
+cups = ['INT', 'INT-2']
 
+#get data from mongodb database
+@st.cache_data(show_spinner=False)
+def get_stats(cups: list, team: str) -> list:
+    stats = list(col.aggregate([{"$match": {"general.country": {"$nin": cups}, "$or": [{"teams.home.name": team}, {"teams.away.name": team}]}}, 
+                       {"$project": {"_id": 0, "general.round": 1, "general.league": 1,"teams.home.name": 1, "teams.away.name": 1, "stats": 1, 'result': 1}}]))
+    print(stats[0])
     return stats
 
 #get percentage
@@ -29,7 +32,7 @@ def get_perc(x: float, y: float) -> float:
     return perc
 
 #create dataframe from data obtained from mongodb
-def get_dataframe(squad_stats: list, team:str, season:str, league:str) -> pd.DataFrame:
+def get_dataframe(squad_stats: list, team:str) -> pd.DataFrame:
     matchweeks = []
     venues = []
     opps = []
@@ -77,7 +80,7 @@ def get_dataframe(squad_stats: list, team:str, season:str, league:str) -> pd.Dat
             xg_op_opp = []
             touch_opp_opp = []
 
-            opp_stats = get_stats(country=country, team=opp, season=season, league=league)
+            opp_stats = get_stats(cups=cups, team=opp)
             for stat_opp in opp_stats:                    
                 matchweek_opp = int(stat_opp['general']['round'][6:]) if len(stat_opp['general']['round']) > 6 else int(stat_opp['general']['round'])
                 if matchweek_opp < matchweek:
@@ -113,13 +116,6 @@ def get_dataframe(squad_stats: list, team:str, season:str, league:str) -> pd.Dat
 
     return df.sort_values(by='Matchweek')
 
-
-@st.cache_data(show_spinner=False)
-def get_squads(season: str, league: str, country: str) -> list:
-    squads = list(col.aggregate([{"$match": {'general.season': season, 'general.league': league, 'general.country': country}}, {"$project": {"_id": 0, "general": 1, "teams": 1, "stats": 1, "result": 1}}]))
-    
-    return squads
-
 st.set_page_config(
     page_title='Squad Report', 
     layout='wide', 
@@ -143,22 +139,17 @@ st.title("Squad Report Based on Relative Performance")
 st.subheader("How much opponents lose their average performance against the selected squad?")
 st.write("Except from Standard Deviation, all metrics are shown in a lower-is-better mode")
 
-seasons = col.distinct('general.season')
-countries = col.distinct('general.country')
-leagues = col.distinct('general.league')
-
+squads = col.distinct('teams.home.name')
 
 
 try:
-            country = st.selectbox(label='Select a Country', options=countries)
-            league = st.selectbox(label='Select a League', options=col.find({'general.country': country}).distinct('general.league'))
-            season = st.selectbox(label='Select a Season',
-                                options=col.find({'general.league': league}).distinct('general.season'))
-            squad = st.selectbox(label='Select a Squad', options=col.find({'general.league': league}).distinct('teams.home.name'))
-            #squads = get_squads(seasons=season, leagues=league, countries=country)
+            
+            squad = st.selectbox(label='Select a Squad', options=squads, index=21)
+            squad_data = col.find_one({'teams.home.name': squad})
    
-            stats = get_stats(country=country, team=squad, season=season, league=league)
-            df = get_dataframe(stats, team=squad, season=season, league=league)
+            stats = get_stats(cups=cups, team=squad)
+            df = get_dataframe(stats, team=squad)
+            print(df)
 
             df_styled = df.style.background_gradient(cmap='RdBu_r', text_color_threshold=0.5, 
                                                         subset=df.columns[4:10], low=0.00).background_gradient(cmap='Blues_r', 
@@ -170,8 +161,7 @@ try:
             col1, col2, col3, col4, col5 = st.columns(5, vertical_alignment='center')
 
             with col1:
-                image_data = col.find_one({'teams.home.name': st.session_state['squad'], 'general.season': st.session_state['season'], 'general.league': st.session_state['league']})
-                st.image(f"{image_data['teams']['home']['image']}")
+                st.image(f"{squad_data['teams']['home']['image']}")
 
             with col2:
                 st.metric(label="Last 5 xG Open Play for 100 Passes Diff %", value=np.round(df.tail(5)['xG Open Play 100 Passes Diff %'].mean(), 2))
@@ -193,10 +183,10 @@ try:
                 
             st.divider()
 
-            st.subheader(f"{st.session_state['squad']} TreeMap")
+            st.subheader(f"{squad} TreeMap")
             st.write('Size of opponents squares are based on Standard Deviation')
 
-            fig_tree = px.treemap(data_frame=df, path=[px.Constant(st.session_state['league']), 'Result', 'Venue', 'Opponent'], values='Standard Dev', 
+            fig_tree = px.treemap(data_frame=df, path=[px.Constant(squad_data['general']['league']), 'Result', 'Venue', 'Opponent'], values='Standard Dev', 
                                       color='Weighted Avg Diff %', color_continuous_scale='RdBu_r')
             fig_tree.update_traces(marker=dict(cornerradius=5))
             fig_tree.update_layout(margin = dict(t=5, l=5, r=1, b=5))
@@ -231,11 +221,8 @@ try:
 
 
 except Exception as e:
+    st.text(e)
     st.write("Ops! Something Went Wrong! - Maybe You've Chosen a League which Hasn't Started Yet Or Has Less Than 6 Matchweeks.")
     
 st.caption("Created by Saulo Faria - Data Scientist Specialized in Football")
            
-
-
-
-
