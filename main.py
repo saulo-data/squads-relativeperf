@@ -166,10 +166,10 @@ try:
             if 'squad' not in st.session_state:
                 st.session_state['squad'] = squads[0]
 
-            country = st.selectbox(label='Select a Country', options=countries, index=0)
+            country = st.selectbox(label='Select a Country', options=countries, index=8)
             league = st.selectbox(label='Select a League', options=leagues, index=0)
             season = st.selectbox(label='Select a Season',
-                                options=seasons, index=0)
+                                options=seasons, index=1)
             squad = st.selectbox(label='Select a Squad', options=squads, index=0)
             
             submitted = st.form_submit_button("Submit")
