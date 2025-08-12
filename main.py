@@ -155,22 +155,22 @@ squads = get_squads(seasons=seasons, leagues=leagues, countries=countries)
 try:
     with st.form("league-season"):
             if 'country' not in st.session_state:
-                st.session_state = 'ARG'
+                st.session_state = 'BRA'
                 
             if 'league' not in st.session_state:
-                st.session_state['league'] = 'Liga Preofesional'
+                st.session_state['league'] = 'Serie A'
             
             if 'season' not in st.session_state:
                 st.session_state['season'] = '2025'
 
             if 'squad' not in st.session_state:
-                st.session_state['squad'] = squads[0]
+                st.session_state['squad'] = 'Atletico MG'
 
-            country = st.selectbox(label='Select a Country', options=countries, index=0)
-            league = st.selectbox(label='Select a League', options=leagues, index=0)
+            country = st.selectbox(label='Select a Country', options=countries, index=3)
+            league = st.selectbox(label='Select a League', options=leagues, index=18)
             season = st.selectbox(label='Select a Season',
-                                options=seasons, index=1)
-            squad = st.selectbox(label='Select a Squad', options=squads, index=36)
+                                options=seasons, index=0)
+            squad = st.selectbox(label='Select a Squad', options=squads, index=24)
             
             submitted = st.form_submit_button("Submit")
 
