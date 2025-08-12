@@ -166,8 +166,8 @@ try:
             country = st.selectbox(label='Select a Country', options=countries)
             league = st.selectbox(label='Select a League', options=col.find({'general.country': country}).distinct('general.league'))
             season = st.selectbox(label='Select a Season',
-                                options=col.find({'general.league': league}).distinct('general.season')))
-            squad = st.selectbox(label='Select a Squad', options=col.find({'general.league': league}).distinct('teams.home.name')))
+                                options=col.find({'general.league': league}).distinct('general.season'))
+            squad = st.selectbox(label='Select a Squad', options=col.find({'general.league': league}).distinct('teams.home.name'))
             
     #         submitted = st.form_submit_button("Submit")
 
