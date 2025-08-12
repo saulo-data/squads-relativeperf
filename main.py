@@ -221,7 +221,6 @@ try:
 
 
 except Exception as e:
-    st.text(e)
     st.write("Ops! Something Went Wrong! - Maybe You've Chosen a League which Hasn't Started Yet Or Has Less Than 6 Matchweeks.")
     
 st.caption("Created by Saulo Faria - Data Scientist Specialized in Football")
