@@ -155,7 +155,7 @@ squads = get_squads(seasons=seasons, leagues=leagues, countries=countries)
 try:
     with st.form("league-season"):
             if 'country' not in st.session_state:
-                st.session_state = 'BRA'
+                st.session_state['country'] = 'BRA'
                 
             if 'league' not in st.session_state:
                 st.session_state['league'] = 'Serie A'
