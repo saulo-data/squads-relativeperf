@@ -158,7 +158,7 @@ try:
             #squads = get_squads(seasons=season, leagues=league, countries=country)
    
             stats = get_stats(country=country, team=squad, season=season, league=league)
-            df = get_dataframe(stats, season=season, league=league)
+            df = get_dataframe(stats, team=squad, season=season, league=league)
 
             df_styled = df.style.background_gradient(cmap='RdBu_r', text_color_threshold=0.5, 
                                                         subset=df.columns[4:10], low=0.00).background_gradient(cmap='Blues_r', 
