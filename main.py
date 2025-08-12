@@ -19,7 +19,6 @@ cups = ['INT', 'INT-2']
 def get_stats(cups: list, team: str) -> list:
     stats = list(col.aggregate([{"$match": {"general.country": {"$nin": cups}, "$or": [{"teams.home.name": team}, {"teams.away.name": team}]}}, 
                        {"$project": {"_id": 0, "general.round": 1, "general.league": 1,"teams.home.name": 1, "teams.away.name": 1, "stats": 1, 'result': 1}}]))
-    print(stats[0])
     return stats
 
 #get percentage
@@ -149,7 +148,6 @@ try:
    
             stats = get_stats(cups=cups, team=squad)
             df = get_dataframe(stats, team=squad)
-            print(df)
 
             df_styled = df.style.background_gradient(cmap='RdBu_r', text_color_threshold=0.5, 
                                                         subset=df.columns[4:10], low=0.00).background_gradient(cmap='Blues_r', 
