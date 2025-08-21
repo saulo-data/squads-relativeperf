@@ -122,7 +122,7 @@ st.set_page_config(
 )
 
 with st.sidebar:
-    st.image('icon_img/image.jpeg', 
+    st.image('static/image.png', 
              caption="Saulo Faria - Data Scientist Specialized in Football")
     st.write(f"This App was designed in order to get an overview of squads")
 
