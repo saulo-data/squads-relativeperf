@@ -138,7 +138,7 @@ st.title("Squad Report Based on Relative Performance")
 st.subheader("How much opponents lose their average performance against the selected squad?")
 st.write("Except from Standard Deviation, all metrics are shown in a lower-is-better mode")
 
-squads = col.distinct('teams.home.name')
+squads = col.find({'general.country': {"$nin": cups}}).distinct('teams.home.name')
 
 
 try:
