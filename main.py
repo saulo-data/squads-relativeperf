@@ -143,7 +143,7 @@ squads = col.find({'general.country': {"$nin": cups}}).distinct('teams.home.name
 
 try:
             
-            squad = st.selectbox(label='Select a Squad', options=squads, index=27)
+            squad = st.selectbox(label='Select a Squad', options=squads, index=30)
             squad_data = col.find_one({'teams.home.name': squad})
    
             stats = get_stats(cups=cups, team=squad)
