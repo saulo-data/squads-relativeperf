@@ -1,11 +1,10 @@
 #libraries
-from pymongo import MongoClient
+from pymongo import MongoClient, collection
 import pandas as pd
 import numpy as np
 import plotly.express as px
 from statistics import mean
 import streamlit as st
-from unidecode import unidecode
 
 #mongodb connection
 client = MongoClient(st.secrets['url_con'])
@@ -16,10 +15,28 @@ cups = ['INT', 'INT-2']
 
 #get data from mongodb database
 @st.cache_data(show_spinner=False)
-def get_stats(cups: list, team: str) -> list:
-    stats = list(col.aggregate([{"$match": {"general.country": {"$nin": cups}, "$or": [{"teams.home.name": team}, {"teams.away.name": team}]}}, 
+def get_stats(cups: list, team: str, league: str) -> list:
+    stats = list(col.aggregate([{"$match": {"general.country": {"$nin": cups}, "general.league": league, "$or": [{"teams.home.name": team}, {"teams.away.name": team}]}}, 
                        {"$project": {"_id": 0, "general.round": 1, "general.league": 1,"teams.home.name": 1, "teams.away.name": 1, "stats": 1, 'result': 1}}]))
+    #pprint(stats)
     return stats
+
+def get_teams_dict(venue: str, collection: collection) -> dict:
+    teams_data = {}
+    teams = list(collection.find({'general.country': {"$nin": cups}}, {"general.country": 1, "general.league": 1, f"teams.{venue}.name": 1}))
+    
+
+    for team in teams:
+        team_name = team['teams'][venue]['name']
+        team_league = team['general']['league']
+        team_country = team['general']['country']
+        complete_name = f"{team_name} - {team_country}"
+        if complete_name not in teams_data.keys():
+            teams_data[complete_name] = {'country': team_country, 'league': team_league, 'name': team_name}
+        else:
+            continue
+    
+    return teams_data
 
 #get percentage
 def get_perc(x: float, y: float) -> float:
@@ -79,7 +96,7 @@ def get_dataframe(squad_stats: list, team:str) -> pd.DataFrame:
             xg_op_opp = []
             touch_opp_opp = []
 
-            opp_stats = get_stats(cups=cups, team=opp)
+            opp_stats = get_stats(cups=cups, team=opp, league=stat['general']['league'])
             for stat_opp in opp_stats:                    
                 matchweek_opp = int(stat_opp['general']['round'][6:]) if len(stat_opp['general']['round']) > 6 else int(stat_opp['general']['round'])
                 if matchweek_opp < matchweek:
@@ -128,7 +145,6 @@ with st.sidebar:
 
     st.subheader("My links (pt-br)")
     st.link_button("Aposta Consciente", "https://apostaconsciente.hotmart.host/product-page-88be95cc-1892-4fa6-b364-69a271150f8f", use_container_width=True)
-    #st.link_button("Udemy", "https://www.udemy.com/user/saulo-faria-3/", use_container_width=True)
     st.link_button("Instagram", "https://www.instagram.com/saulo.foot/", use_container_width=True)
     st.link_button("X", "https://x.com/fariasaulo_", use_container_width=True)
     st.link_button("Youtube", "https://www.youtube.com/channel/UCkSw2eyetrr8TByFis0Uyug", use_container_width=True)
@@ -138,16 +154,16 @@ st.title("Squad Report Based on Relative Performance")
 st.subheader("How much opponents lose their average performance against the selected squad?")
 st.write("Except from Standard Deviation, all metrics are shown in a lower-is-better mode")
 
-squads = col.find({'general.country': {"$nin": cups}}).distinct('teams.home.name')
-
+squads = get_teams_dict(venue='home', collection=col)
 
 try:
             
-            squad = st.selectbox(label='Select a Squad', options=squads, index=30)
-            squad_data = col.find_one({'teams.home.name': squad})
+            squad = st.selectbox(label='Select a Squad', options=squads.keys(), index=21)
+            squad_data = col.find_one({'general.country': squads[squad]['country'], 'teams.home.name': squads[squad]['name']})
    
-            stats = get_stats(cups=cups, team=squad)
-            df = get_dataframe(stats, team=squad)
+            stats = get_stats(cups=cups, team=squads[squad]['name'], league=squads[squad]['league'])
+            df = get_dataframe(stats, team=squads[squad]['name'])
+            
 
             df_styled = df.style.background_gradient(cmap='RdBu_r', text_color_threshold=0.5, 
                                                         subset=df.columns[4:10], low=0.00).background_gradient(cmap='Blues_r', 
@@ -219,6 +235,7 @@ try:
 
 
 except Exception as e:
+    st.text(e)
     st.write("Ops! Something Went Wrong! - Maybe You've Chosen a League which Hasn't Started Yet Or Has Less Than 6 Matchweeks.")
     
 st.caption("Created by Saulo Faria - Data Scientist Specialized in Football")
