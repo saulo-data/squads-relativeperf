@@ -141,7 +141,7 @@ st.set_page_config(
 with st.sidebar:
     st.image('static/image.png', 
              caption="Saulo Faria - Data Scientist Specialized in Football")
-    st.write(f"This Web App was designed in order to get an deep overview of football squads (current season). If you want to have more details about these teams, other stats, other seasons or believe I can help you in your project, send an email to football.data@saulofaria.com.br. I'm always open to work."")
+    st.write(f"This Web App was designed in order to get an deep overview of football squads (current season). If you want to have more details about these teams, other stats, other seasons or believe I can help you in your project, send an email to football.data@saulofaria.com.br. I'm always open to work.")
 
     st.subheader("My links (pt-br)")
     st.link_button("Substack", "https://substack.com/@saulofaria", use_container_width=True)
