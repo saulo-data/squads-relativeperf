@@ -159,7 +159,7 @@ squads = get_teams_dict(venue='home', collection=col, seasons=SEASONS)
 try:
             
             squad = st.selectbox(label='Select a Squad', options=squads.keys(), index=21)
-            squad_data = col.find_one({'general.country': squads[squad]['country'], 'teams.home.name': squads[squad]['name'], 'general.season': squads[squad]['season']})
+            squad_data = col.find_one({'general.country': squads[squad]['country'], 'teams.home.name': squads[squad]['name']})
    
             stats = get_stats(cups=cups, team=squads[squad]['name'], league=squads[squad]['league'], seasons=SEASONS)
             df = get_dataframe(stats, team=squads[squad]['name'], seasons=SEASONS)
