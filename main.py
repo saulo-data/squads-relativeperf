@@ -12,18 +12,20 @@ db = client.football_data
 col = db.fotmob_stats
 
 cups = ['INT', 'INT-2']
+YEAR = 2025
+SEASONS = [f"{YEAR}", f"{YEAR}/{YEAR+1}"]
 
 #get data from mongodb database
 @st.cache_data(show_spinner=False)
-def get_stats(cups: list, team: str, league: str) -> list:
-    stats = list(col.aggregate([{"$match": {"general.country": {"$nin": cups}, "general.league": league, "$or": [{"teams.home.name": team}, {"teams.away.name": team}]}}, 
+def get_stats(cups: list, team: str, league: str, seasons: list) -> list:
+    stats = list(col.aggregate([{"$match": {"general.country": {"$nin": cups}, 'general.season': {'$in': seasons}, "general.league": league, "$or": [{"teams.home.name": team}, {"teams.away.name": team}]}}, 
                        {"$project": {"_id": 0, "general.round": 1, "general.league": 1,"teams.home.name": 1, "teams.away.name": 1, "stats": 1, 'result': 1}}]))
     #pprint(stats)
     return stats
 
-def get_teams_dict(venue: str, collection: collection) -> dict:
+def get_teams_dict(venue: str, collection: collection, seasons: list) -> dict:
     teams_data = {}
-    teams = list(collection.find({'general.country': {"$nin": cups}}, {"general.country": 1, "general.league": 1, f"teams.{venue}.name": 1}))
+    teams = list(collection.find({'general.country': {"$nin": cups}, 'general.season': {'$in': seasons}, {"general.country": 1, "general.league": 1, f"teams.{venue}.name": 1}))
     
 
     for team in teams:
@@ -48,7 +50,7 @@ def get_perc(x: float, y: float) -> float:
     return perc
 
 #create dataframe from data obtained from mongodb
-def get_dataframe(squad_stats: list, team:str) -> pd.DataFrame:
+def get_dataframe(squad_stats: list, team:str, seasons: list) -> pd.DataFrame:
     matchweeks = []
     venues = []
     opps = []
@@ -96,7 +98,7 @@ def get_dataframe(squad_stats: list, team:str) -> pd.DataFrame:
             xg_op_opp = []
             touch_opp_opp = []
 
-            opp_stats = get_stats(cups=cups, team=opp, league=stat['general']['league'])
+            opp_stats = get_stats(cups=cups, team=opp, league=stat['general']['league'], seasons=seasons)
             for stat_opp in opp_stats:                    
                 matchweek_opp = int(stat_opp['general']['round'][6:]) if len(stat_opp['general']['round']) > 6 else int(stat_opp['general']['round'])
                 if matchweek_opp < matchweek:
@@ -154,15 +156,15 @@ st.title("Squad Report Based on Relative Performance")
 st.subheader("How much opponents lose their average performance against the selected squad?")
 st.write("Except from Standard Deviation, all metrics are shown in a lower-is-better mode")
 
-squads = get_teams_dict(venue='home', collection=col)
+squads = get_teams_dict(venue='home', collection=col, seasons=SEASONS)
 
 try:
             
             squad = st.selectbox(label='Select a Squad', options=squads.keys(), index=21)
-            squad_data = col.find_one({'general.country': squads[squad]['country'], 'teams.home.name': squads[squad]['name']})
+            squad_data = col.find_one({'general.country': squads[squad]['country'], 'teams.home.name': squads[squad]['name'], 'general.season': SEASONS})
    
-            stats = get_stats(cups=cups, team=squads[squad]['name'], league=squads[squad]['league'])
-            df = get_dataframe(stats, team=squads[squad]['name'])
+            stats = get_stats(cups=cups, team=squads[squad]['name'], league=squads[squad]['league'], seasons=SEASONS)
+            df = get_dataframe(stats, team=squads[squad]['name'], seasons: SEASONS)
             
 
             df_styled = df.style.background_gradient(cmap='RdBu_r', text_color_threshold=0.5, 
