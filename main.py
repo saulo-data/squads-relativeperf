@@ -164,7 +164,7 @@ try:
             squad_data = col.find_one({'general.country': squads[squad]['country'], 'teams.home.name': squads[squad]['name'], 'general.season': SEASONS})
    
             stats = get_stats(cups=cups, team=squads[squad]['name'], league=squads[squad]['league'], seasons=SEASONS)
-            df = get_dataframe(stats, team=squads[squad]['name'], seasons: SEASONS)
+            df = get_dataframe(stats, team=squads[squad]['name'], seasons=SEASONS)
             
 
             df_styled = df.style.background_gradient(cmap='RdBu_r', text_color_threshold=0.5, 
