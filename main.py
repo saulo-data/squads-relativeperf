@@ -129,7 +129,7 @@ def get_dataframe(squad_stats: list, team:str, seasons: list) -> pd.DataFrame:
     df['Overall Diff %'] = df.iloc[:, 4:].mean(axis=1)
     df['Weighted Avg Diff %'] = (df['Ball Poss Diff %'] * 0.12) + (df['Pass Opp Half Diff %'] * 0.25) + (df['xG Open Play 100 Passes Diff %'] * 0.4) + (df['Touch Opp Box 100 Passes Diff %'] * 0.32)
     df['Standard Dev'] = df.iloc[:, 4:8].std(axis=1)
-    st.write(df)
+    
     return df.sort_values(by='Matchweek')
 
 st.set_page_config(
@@ -155,7 +155,7 @@ st.subheader("How much opponents lose their average performance against the sele
 st.write("Except from Standard Deviation, all metrics are shown in a lower-is-better mode")
 
 squads = get_teams_dict(venue='home', collection=col, seasons=SEASONS)
-
+st.write(squads)
 try:
             
             squad = st.selectbox(label='Select a Squad', options=squads.keys(), index=21)
