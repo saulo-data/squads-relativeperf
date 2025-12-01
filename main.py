@@ -25,7 +25,7 @@ def get_stats(cups: list, team: str, league: str, seasons: list) -> list:
 
 def get_teams_dict(venue: str, collection: collection, seasons: list) -> dict:
     teams_data = {}
-    teams = list(collection.find({'general.country': {"$nin": cups}, 'general.season': {'$in': seasons}, {"general.country": 1, "general.league": 1, f"teams.{venue}.name": 1}))
+    teams = list(collection.find({'general.country': {"$nin": cups}, 'general.season': {'$in': seasons}}, {"general.country": 1, "general.league": 1, f"teams.{venue}.name": 1}))
     
 
     for team in teams:
