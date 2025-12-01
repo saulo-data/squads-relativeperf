@@ -20,13 +20,12 @@ SEASONS = [f"{YEAR}", f"{YEAR}/{YEAR+1}"]
 def get_stats(cups: list, team: str, league: str, seasons: list) -> list:
     stats = list(col.aggregate([{"$match": {"general.country": {"$nin": cups}, 'general.season': {'$in': seasons}, "general.league": league, "$or": [{"teams.home.name": team}, {"teams.away.name": team}]}}, 
                        {"$project": {"_id": 0, "general.round": 1, "general.league": 1,"teams.home.name": 1, "teams.away.name": 1, "stats": 1, 'result': 1}}]))
-    st.write(stats)
     return stats
 
 def get_teams_dict(venue: str, collection: collection, seasons: list) -> dict:
     teams_data = {}
     teams = list(collection.find({'general.country': {"$nin": cups}, 'general.season': {'$in': seasons}}, {"general.country": 1, "general.league": 1, f"teams.{venue}.name": 1}))
-    
+    st.write(teams)
 
     for team in teams:
         team_name = team['teams'][venue]['name']
