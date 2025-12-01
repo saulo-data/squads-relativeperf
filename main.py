@@ -155,11 +155,11 @@ st.subheader("How much opponents lose their average performance against the sele
 st.write("Except from Standard Deviation, all metrics are shown in a lower-is-better mode")
 
 squads = get_teams_dict(venue='home', collection=col, seasons=SEASONS)
-st.write(squads)
+
 try:
             
             squad = st.selectbox(label='Select a Squad', options=squads.keys(), index=21)
-            squad_data = col.find_one({'general.country': squads[squad]['country'], 'teams.home.name': squads[squad]['name'], 'general.season': SEASONS})
+            squad_data = col.find_one({'general.country': squads[squad]['country'], 'teams.home.name': squads[squad]['name'], 'general.season': squads[squad]['season']})
    
             stats = get_stats(cups=cups, team=squads[squad]['name'], league=squads[squad]['league'], seasons=SEASONS)
             df = get_dataframe(stats, team=squads[squad]['name'], seasons=SEASONS)
