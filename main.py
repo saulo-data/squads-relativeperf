@@ -25,7 +25,6 @@ def get_stats(cups: list, team: str, league: str, seasons: list) -> list:
 def get_teams_dict(venue: str, collection: collection, seasons: list) -> dict:
     teams_data = {}
     teams = list(collection.find({'general.country': {"$nin": cups}, 'general.season': {'$in': seasons}}, {"general.country": 1, "general.league": 1, f"teams.{venue}.name": 1}))
-    st.write(teams)
 
     for team in teams:
         team_name = team['teams'][venue]['name']
@@ -130,7 +129,7 @@ def get_dataframe(squad_stats: list, team:str, seasons: list) -> pd.DataFrame:
     df['Overall Diff %'] = df.iloc[:, 4:].mean(axis=1)
     df['Weighted Avg Diff %'] = (df['Ball Poss Diff %'] * 0.12) + (df['Pass Opp Half Diff %'] * 0.25) + (df['xG Open Play 100 Passes Diff %'] * 0.4) + (df['Touch Opp Box 100 Passes Diff %'] * 0.32)
     df['Standard Dev'] = df.iloc[:, 4:8].std(axis=1)
-
+    st.write(df)
     return df.sort_values(by='Matchweek')
 
 st.set_page_config(
